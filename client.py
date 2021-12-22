@@ -62,15 +62,20 @@ def handle_message_from_server(sock, mask):
         print('Disconnected from server ... exiting!')
         sys.exit(0)
 
-    # If the file is sent means File is incoming
+    elif words[0] == 'USER':
+       print("hello")
+       message = get_line_from_socket(sock)
+       print(message)
+       do_prompt()
+
+
     elif words[0] == 'FILE':
 
-        #get information about the file
         size = words[1]
         fileInfo_Size = int(size)
-        fileInfo = sock.recv(fileInfo_Size).decode()  # get the filename, size and user who sent it
+        fileInfo = sock.recv(fileInfo_Size).decode()
 
-        # Split file by the space to get file name, size and user who sent it
+
         strippedFile = fileInfo.split(" ")
         fileName = strippedFile[0]
         fileSize = strippedFile[1]
@@ -78,7 +83,6 @@ def handle_message_from_server(sock, mask):
 
         user = ""
 
-        #strip the @ symbol and colon from the user to just get the name and nothing else
         for char in userSent:
             if char == "@" or char == ":":
                 continue
@@ -87,25 +91,23 @@ def handle_message_from_server(sock, mask):
                 user = user + char
 
 
-        # print file information
+
         print("Incoming file: " + fileName)
         print("Origin: " + user)
         print("Content-Length: " + fileSize)
 
-        # read in the first 1024 bytes of the file
+
         bytes = sock.recv(1024)
         size = int(fileSize)
 
-        # open the file
         file = open(fileName, "wb")
         amountRecieved = len(bytes)
-        file.write(bytes) # write in the first 1024 bytes of the file
+        file.write(bytes)
 
-        #while loop that will read in the remaining bytes of the file and write them out. Loop will terminate when it bytes read is greater then the size of the file
         while amountRecieved < size:
-            bytes = sock.recv(1024) # read in the next 1024 bytes
+            bytes = sock.recv(1024)
             amountRecieved = amountRecieved + len(bytes)
-            file.write(bytes) #add them to the fille
+            file.write(bytes)
 
         print("finished Downlaod")
         file.close()
